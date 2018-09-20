@@ -7,23 +7,23 @@ const install = (Vue, options) => {
 
   // For ff, ie
   Object.defineProperty(bodyScrollEl, 'scrollTop', {
-    get () {
+    get() {
       return document.body.scrollTop || document.documentElement.scrollTop
     },
-    set (val) {
+    set(val) {
       document.body.scrollTop = val
       document.documentElement.scrollTop = val
     }
   })
 
   Object.defineProperty(bodyScrollEl, 'scrollHeight', {
-    get () {
+    get() {
       return document.body.scrollHeight || document.documentElement.scrollHeight
     }
   })
 
   Object.defineProperty(bodyScrollEl, 'offsetHeight', {
-    get () {
+    get() {
       return window.innerHeight
     }
   })
@@ -35,24 +35,27 @@ const install = (Vue, options) => {
   const activableElements = {}
   const currentIndex = {}
 
-  options = Object.assign({
-    allowNoActive: false,
-    sectionSelector: null,
-    data: null,
-    offset: 0,
-    time: 500,
-    steps: 30,
-    easing: null,
-    active: {
-      selector: null,
-      class: 'active'
+  options = Object.assign(
+    {
+      allowNoActive: false,
+      sectionSelector: null,
+      data: null,
+      offset: 0,
+      time: 500,
+      steps: 30,
+      easing: null,
+      active: {
+        selector: null,
+        class: 'active'
+      },
+      link: {
+        selector: 'a'
+      }
     },
-    link: {
-      selector: 'a'
-    }
-  }, options || {})
+    options || {}
+  )
 
-  function findElements (container, selector) {
+  function findElements(container, selector) {
     if (!selector) {
       return container.children
     }
@@ -71,15 +74,15 @@ const install = (Vue, options) => {
     return elements
   }
 
-  function scrollSpyId (el) {
+  function scrollSpyId(el) {
     return el.getAttribute('data-scroll-spy-id') || el.getAttribute('scroll-spy-id') || 'default'
   }
 
-  function scrollSpyIdDefined (el) {
+  function scrollSpyIdDefined(el) {
     return !!el.getAttribute('data-scroll-spy-id') || !!el.getAttribute('scroll-spy-id')
   }
 
-  function scrollSpyIdFromAncestors (el) {
+  function scrollSpyIdFromAncestors(el) {
     do {
       if (scrollSpyIdDefined(el)) {
         return scrollSpyId(el)
@@ -89,7 +92,7 @@ const install = (Vue, options) => {
     return 'default'
   }
 
-  function initScrollSections (el, sectionSelector) {
+  function initScrollSections(el, sectionSelector) {
     const id = scrollSpyId(el)
     const scrollSpyContextEl = el[scrollSpyContext]
     const idScrollSections = findElements(el, sectionSelector)
@@ -101,7 +104,7 @@ const install = (Vue, options) => {
     }
   }
 
-  function getOffsetTop (elem, untilParent) {
+  function getOffsetTop(elem, untilParent) {
     let offsetTop = 0
     do {
       if (!isNaN(elem.offsetTop)) {
@@ -112,7 +115,7 @@ const install = (Vue, options) => {
     return offsetTop
   }
 
-  function scrollTo (el, index) {
+  function scrollTo(el, index) {
     const id = scrollSpyId(el)
     const idScrollSections = scrollSpySections[id]
 
@@ -140,8 +143,8 @@ const install = (Vue, options) => {
   }
 
   Vue.directive('scroll-spy', {
-    bind: function (el, binding, vnode) {
-      function onScroll () {
+    bind: function(el, binding, vnode) {
+      function onScroll() {
         const id = scrollSpyId(el)
         const idScrollSections = scrollSpySections[id]
 
@@ -149,7 +152,7 @@ const install = (Vue, options) => {
 
         let index
 
-        if ((scrollEl.offsetHeight + scrollEl.scrollTop) >= scrollEl.scrollHeight - 10) {
+        if (scrollEl.offsetHeight + scrollEl.scrollTop >= scrollEl.scrollHeight - 10) {
           index = idScrollSections.length
         } else {
           for (index = 0; index < idScrollSections.length; index++) {
@@ -163,8 +166,7 @@ const install = (Vue, options) => {
 
         if (index < 0) {
           index = options.allowNoActive ? null : 0
-        } else if (options.allowNoActive && index >= idScrollSections.length - 1 &&
-          getOffsetTop(idScrollSections[index]) + idScrollSections[index].offsetHeight < scrollEl.scrollTop) {
+        } else if (options.allowNoActive && index >= idScrollSections.length - 1 && getOffsetTop(idScrollSections[index]) + idScrollSections[index].offsetHeight < scrollEl.scrollTop) {
           index = null
         }
 
@@ -177,11 +179,13 @@ const install = (Vue, options) => {
 
           currentIndex[id] = index
           if (typeof currentIndex !== 'undefined' && Object.keys(activableElements).length > 0) {
-            idActiveElement = activableElements[id][currentIndex[id]]
-            activeElement[id] = idActiveElement
+            if (activableElements[id].length > 0) {
+              idActiveElement = activableElements[id][currentIndex[id]]
+              activeElement[id] = idActiveElement
 
-            if (idActiveElement) {
-              idActiveElement.classList.add(idActiveElement[scrollSpyContext].options.class)
+              if (idActiveElement) {
+                idActiveElement.classList.add(idActiveElement[scrollSpyContext].options.class)
+              }
             }
           }
 
@@ -206,7 +210,7 @@ const install = (Vue, options) => {
       scrollSpyElements[id] = el
       delete currentIndex[id]
     },
-    inserted: function (el) {
+    inserted: function(el) {
       const {
         options: { sectionSelector }
       } = el[scrollSpyContext]
@@ -216,27 +220,28 @@ const install = (Vue, options) => {
 
       onScroll()
     },
-    componentUpdated: function (el, binding) {
+    componentUpdated: function(el, binding) {
       el[scrollSpyContext].options = Object.assign({}, options, binding.value)
       const {
-        onScroll, options: { sectionSelector }
+        onScroll,
+        options: { sectionSelector }
       } = el[scrollSpyContext]
 
       initScrollSections(el, sectionSelector)
       onScroll()
     },
-    unbind: function (el) {
+    unbind: function(el) {
       const { eventEl, onScroll } = el[scrollSpyContext]
       eventEl.removeEventListener('scroll', onScroll)
     }
   })
 
-  function scrollSpyActive (el, binding) {
+  function scrollSpyActive(el, binding) {
     const activeOptions = Object.assign({}, options.active, binding.value)
     initScrollActiveElement(el, activeOptions)
   }
 
-  function initScrollActiveElement (el, activeOptions) {
+  function initScrollActiveElement(el, activeOptions) {
     const id = scrollSpyId(el)
     activableElements[id] = findElements(el, activeOptions.selector)
     const arr = [...activableElements[id]]
@@ -252,11 +257,11 @@ const install = (Vue, options) => {
     componentUpdated: scrollSpyActive
   })
 
-  function scrollLinkClickHandler (index, scrollSpyId, event) {
+  function scrollLinkClickHandler(index, scrollSpyId, event) {
     scrollTo(scrollSpyElements[scrollSpyId], index)
   }
 
-  function initScrollLink (el, selector) {
+  function initScrollLink(el, selector) {
     const id = scrollSpyId(el)
 
     const linkElements = findElements(el, selector)
@@ -277,15 +282,15 @@ const install = (Vue, options) => {
   }
 
   Vue.directive('scroll-spy-link', {
-    inserted: function (el, binding) {
+    inserted: function(el, binding) {
       const linkOptions = Object.assign({}, options.link, binding.value)
       initScrollLink(el, linkOptions.selector)
     },
-    componentUpdated: function (el, binding) {
+    componentUpdated: function(el, binding) {
       const linkOptions = Object.assign({}, options.link, binding.value)
       initScrollLink(el, linkOptions.selector)
     },
-    unbind (el) {
+    unbind(el) {
       const linkElements = findElements(el)
 
       for (let i = 0; i < linkElements.length; i++) {
@@ -307,11 +312,8 @@ const install = (Vue, options) => {
 
 if (typeof window !== 'undefined' && window.Vue) {
   install(window.Vue)
-};
+}
 
 export default install
 
-export {
-  Easing,
-  install
-}
+export { Easing, install }
