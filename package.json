@@ -4,6 +4,10 @@
   "description": "thanks to morning",
   "module": "src/index.js",
   "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xskjs888/pl-scrollspy.git"
+  },
   "author": "pl125",
   "license": "MIT",
   "dependencies": {
