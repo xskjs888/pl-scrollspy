@@ -1,0 +1,12 @@
+{
+  "name": "pl-scrollspy",
+  "version": "1.0.0",
+  "description": "thanks to morning",
+  "module": "src/index.js",
+  "scripts": {},
+  "author": "pl125",
+  "license": "MIT",
+  "dependencies": {
+    "@tweenjs/tween.js": "^17.2.0"
+  }
+}
